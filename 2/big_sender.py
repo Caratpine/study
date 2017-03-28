@@ -10,7 +10,7 @@ if not hasattr(IN, 'IP_MTU'):
 def send_big_datagram(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.IPPROTO_IP, IN.IP_MTU_DISCOVER, IN.IP_PMTUDISC_DO)
-    sock.connet((host, port))
+    sock.connect((host, port))
     try:
         sock.send(b"#" * 65000)
     except socket.error:

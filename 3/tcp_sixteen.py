@@ -28,7 +28,7 @@ def server(interface, port):
         print("We have accepted a connection from", sockname)
         print(" Socket name:", sc.getsockname())
         print(" Socket peer:", sc.getpeername())
-        message = recvall(sc, 6)
+        message = recvall(sc, 16)
         print(" Incoming sixteen-octet message:", repr(message))
         sc.sendall(b"Farewell, client")
         sc.close()
@@ -40,7 +40,7 @@ def client(host, port):
     sock.connect((host, port))
     print("Client has been assigned socket name", sock.getsockname())
     sock.sendall(b"Hi there server")
-    reply = recvall(sock, 6)
+    reply = recvall(sock, 16)
     print("The server said: ", repr(reply))
     sock.close()
 
