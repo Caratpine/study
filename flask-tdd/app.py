@@ -1,5 +1,5 @@
 from flask import Flask, request, session, g, redirect, url_for, \
-    abort, render_template, flash
+    abort, render_template, flash, jsonify
 import sqlite3
 
 DATABASE = 'flaskr.db'
@@ -81,6 +81,20 @@ def get_db():
 def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+
+@app.route('/delete/<post_id>', methods=['GET'])
+def delete_entry(post_id):
+    result = {'status': 0, 'message': 'Error'}
+    try:
+        db = get_db()
+        db.execute("delete from entries where id=" + post_id)
+        db.commit()
+        result = {'status': 1, 'message': 'Post Deleted'}
+    except Exception as e:
+        result = {'status': 0, 'message': repr(e)}
+
+    return jsonify(result)
 
 
 if __name__ == '__main__':

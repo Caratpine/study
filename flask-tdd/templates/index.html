@@ -3,6 +3,7 @@
 <head>
   <title>Flaskr</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 </head>
 <body>
 
@@ -34,11 +35,14 @@
     {% endif %}
     <ul class="entries">
       {% for entry in entries %}
-        <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}</li>
+      <li><h2 id={{ entry.post_id }}>{{ entry.title }}</h2>{{ entry.text|safe }}</li>
       {% else %}
         <li><em>No entries here so far</em></li>
       {% endfor %}
     </ul>
   </div>
 </body>
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='main.js') }}"></script>
 </html>
