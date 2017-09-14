@@ -4,7 +4,6 @@ $(function() {
   $('.entry').on('click', function() {
     var entry = this;
     var post_id = $(this).find('h2').attr('id');
-
     $ajax({
       type: 'GET',
       url: '/delete' + '/' + post_id,
