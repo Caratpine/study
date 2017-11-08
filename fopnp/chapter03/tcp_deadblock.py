@@ -32,7 +32,7 @@ def server(host, port, bytecount):
 def client(host, port, bytecount):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     bytecount = (bytecount + 15)
-    message = b"I love XiLin so much"
+    message = b"capitalize this!"
     print("Sending", bytecount, " bytes of data, in chunks of 16 bytes")
     sock.connect((host, port))
     sent = 0
