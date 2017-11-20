@@ -1,86 +1,10 @@
-#!/usr/bin/env python3
-
+import logging
 import socket
 import struct
-import select
 import selectors
 
 
-srv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-srv_sock.bind(('127.0.0.1', 1080))
-srv_sock.listen(1024)
-
-print("Server listening on port:", 1080)
-
-
-def handle_cli_connect(srv_sock):
-    sock, address = srv_sock.accept()
-    ver, methods = sock.recv(1), sock.recv(1)
-    methods = sock.recv(ord(methods))
-
-    sock.send(b'\x05\x00')
-
-    ver, cmd, rsv, atype = sock.recv(1), sock.recv(1), sock.recv(1), sock.recv(1)
-
-    assert ver == ver
-    assert rsv == rsv
-
-    if ord(cmd) is not 1:
-        sock.close()
-        return
-    if ord(atype) == 1:
-        remote_addr = socket.inet_ntoa(sock.recv(4))
-        remote_port = struct.unpack(">H", sock.recv(2))[0]
-    elif ord(atype) == 3:
-        addr_len = ord(sock.recv(1))
-        remote_addr = sock.recv(addr_len)
-        remote_port = struct.unpack(">H", sock.recv(2))[0]
-    else:
-        reply = b"\x05\x08\x00\x01" + sock.inet_ntoa("0.0.0.0") + struct.pack(">H", 2222)
-        sock.send(reply)
-        sock.close()
-        return
-
-    print("cmd:{0} target ---> {1}:{2}".format(cmd, remote_addr, remote_port))
-
-    remote_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    remote_sock.connect((remote_addr, remote_port))
-
-    reply = b"\x05\x00\x00\x01" + socket.inet_aton("0.0.0.0") + struct.pack(">H", 2222)
-    sock.send(reply)
-
-    handle_tcp(sock, remote_sock)
-
-
-def handle_tcp(cli_sock, remote_sock):
-    print("pipping data...")
-    try:
-        fds = [cli_sock, remote_sock]
-        while True:
-            r, w, e = select.select(fds, [], [])
-            if cli_sock in r:
-                cli_data = cli_sock.recv(1024 * 100)
-                if len(cli_data) <= 0:
-                    break
-                result = send_all(remote_sock, cli_data)
-                if result < len(cli_data):
-                    print("Fail pipping all data to target!!!")
-                    break
-            if remote_sock in r:
-                remote_data = remote_sock.recv(1024 * 1000)
-                if len(remote_data) <= 0:
-                    break
-                result = send_all(cli_sock, remote_data)
-                if result < len(remote_data):
-                    print("Failed pipping all data to client!!!")
-                    break
-    finally:
-        cli_sock.close()
-        remote_sock.close()
-    print("piping data done.")
-
-
-def send_all(sock, data):
+def send_data(sock, data):
     bytes_sent = 0
     while True:
         r = sock.send(data[bytes_sent:])
@@ -91,17 +15,67 @@ def send_all(sock, data):
             return bytes_sent
 
 
-selector = selectors.DefaultSelector()
-selector.register(srv_sock, selectors.EVENT_READ, handle_cli_connect)
+def handle_tcp():
+    pass
 
 
-def loop():
+def handle_connect(server):
+    sock, addr = server.accept()
+    sock.recv(256)
+    sock.send(b'\x05\x00')
+    data = sock.recv(4) or '\x00' * 4
+
+    if data[1] != 1:
+        sock.close()
+        return
+
+    addr_type = data[3]
+    if addr_type == 1:
+        addr_ip = sock.recv(4)
+        remote_addr = socket.inet_ntoa(addr_ip)
+    elif addr_type == 3:
+        addr_len = int.from_bytes(sock.recv(1), byteorder='big')
+        remote_addr = sock.recv(addr_len)
+    elif addr_type == 4:
+        addr_ip = sock.recv(16)
+        remote_addr = socket.inet_ntop(socket.AF_INET6, addr_ip)
+    else:
+        sock.close()
+        return
+
+    remote_port = struct.unpack('>H', sock.recv(2))[0]
+    reply = b'\x05\x00\x00\x01'
+    reply += socket.inet_aton('0.0.0.0') + struct.pack('>H', 1080)
+    sock.send(reply)
+
+    logging.info("target--> {}:{}".format(remote_addr, remote_port))
+
+    try:
+        remote = socket.create_connection((remote_addr, remote_port))
+        logging.info("connecting {}:{}".format(remote_addr, remote_port))
+    except socket.error as e:
+        logging.error("error: {}:{}, msg:{}".format(remote_addr, remote_port, e))
+        sock.close()
+        return
+
+    handle_tcp(sock, remote)
+
+
+def main():
+    socketServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socketServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    socketServer.bind(('', 1080))
+    socketServer.listen(5)
+
+    selector = selectors.DefaultSelector()
+    selector.register(socketServer, selectors.EVENT_READ, handle_connect)
+
     while True:
-        poll = selector.select()
-        for key, event in poll:
+        for key, event in selector.select():
             callback = key.data
             callback(key.fileobj)
 
 
 if __name__ == '__main__':
-    loop()
+    main()
