@@ -1,7 +1,9 @@
 import logging
 import socket
+import select
 import struct
-import selectors
+# import selectors
+import threading
 
 
 def send_data(sock, data):
@@ -15,12 +17,33 @@ def send_data(sock, data):
             return bytes_sent
 
 
-def handle_tcp():
-    pass
+def handle_tcp(sock, remote):
+    try:
+        fdset = [sock, remote]
+        while True:
+            r, w, e = select.select(fdset, [], [])
+            if sock in r:
+                data = sock.recv(4096)
+                if len(data) <= 0:
+                    break
+                result = send_data(remote, data)
+                if result < len(data):
+                    raise Exception("Failed to send all data")
+            if remote in r:
+                data = remote.recv(4096)
+                if len(data) <= 0:
+                    break
+                result = send_data(sock, data)
+                if result < len(data):
+                    raise Exception("Failed to send all data")
+    except Exception as e:
+        raise(e)
+    finally:
+        sock.close()
+        remote.close()
 
 
-def handle_connect(server):
-    sock, addr = server.accept()
+def handle_connect(sock, addr):
     sock.recv(256)
     sock.send(b'\x05\x00')
     data = sock.recv(4) or '\x00' * 4
@@ -68,13 +91,22 @@ def main():
     socketServer.bind(('', 1080))
     socketServer.listen(5)
 
-    selector = selectors.DefaultSelector()
-    selector.register(socketServer, selectors.EVENT_READ, handle_connect)
+    # selector = selectors.DefaultSelector()
+    # selector.register(socketServer, selectors.EVENT_READ, handle_connect)
 
-    while True:
-        for key, event in selector.select():
-            callback = key.data
-            callback(key.fileobj)
+    # while True:
+    #     for key, event in selector.select():
+    #         callback = key.data
+    #         callback(key.fileobj)
+    try:
+        while True:
+            sock, addr = socketServer.accept()
+            t = threading.Thread(target=handle_connect, args=(sock, addr))
+            t.start()
+    except socket.error as e:
+        logging.error(e)
+    except KeyboardInterrupt:
+        socketServer.close()
 
 
 if __name__ == '__main__':
