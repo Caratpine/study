@@ -2,8 +2,12 @@ import logging
 import socket
 import select
 import struct
-# import selectors
+import selectors
 import threading
+
+
+selector = selectors.DefaultSelector()
+logging.basicConfig(level=logging.DEBUG)
 
 
 def send_data(sock, data):
@@ -43,7 +47,10 @@ def handle_tcp(sock, remote):
         remote.close()
 
 
-def handle_connect(sock, addr):
+def handle_connect(server):
+    sock, addr = server.accept()
+    sock.setblocking(False)
+
     sock.recv(256)
     sock.send(b'\x05\x00')
     data = sock.recv(4) or '\x00' * 4
@@ -91,22 +98,21 @@ def main():
     socketServer.bind(('', 1080))
     socketServer.listen(5)
 
-    # selector = selectors.DefaultSelector()
-    # selector.register(socketServer, selectors.EVENT_READ, handle_connect)
+    selector.register(socketServer, selectors.EVENT_READ, handle_connect)
 
-    # while True:
-    #     for key, event in selector.select():
-    #         callback = key.data
-    #         callback(key.fileobj)
-    try:
-        while True:
-            sock, addr = socketServer.accept()
-            t = threading.Thread(target=handle_connect, args=(sock, addr))
-            t.start()
-    except socket.error as e:
-        logging.error(e)
-    except KeyboardInterrupt:
-        socketServer.close()
+    while True:
+        for key, event in selector.select():
+            callback = key.data
+            callback(key.fileobj)
+    # try:
+    #     while True:
+    #         sock, addr = socketServer.accept()
+    #         t = threading.Thread(target=handle_connect, args=(sock, addr))
+    #         t.start()
+    # except socket.error as e:
+    #     logging.error(e)
+    # except KeyboardInterrupt:
+    #     socketServer.close()
 
 
 if __name__ == '__main__':
