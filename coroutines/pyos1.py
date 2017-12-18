@@ -16,6 +16,11 @@ class Task(object):
         return self.target.send(self.sendval)
 
 
+class SystemCall(object):
+    def handle(self):
+        pass
+
+
 class Scheduler(object):
     def __init__(self):
         self.ready = Queue()
@@ -38,7 +43,12 @@ class Scheduler(object):
         while self.taskmap:
             task = self.ready.get()
             try:
-                task.run()
+                result = task.run()
+                if isinstance(result, SystemCall):
+                    result.task = task
+                    result.sched = self
+                    result.handle()
+                    continue
             except StopIteration:
                 self.exit(task)
                 continue
