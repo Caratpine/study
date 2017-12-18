@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from Queue import Queue
+from queue import Queue
 
 
 class Task(object):
@@ -25,13 +25,38 @@ class Scheduler(object):
         newtask = Task(target)
         self.taskmap[newtask.taskid] = newtask
         self.schedule(newtask)
-        return newtask.taskid
+        return newtask.tid
 
     def schedule(self, task):
         self.ready.put(task)
 
+    def exit(self, task):
+        print("Task %d terminated" % task.tid)
+        del self.taskmap[task.tid]
+
     def mainloop(self):
         while self.taskmap:
             task = self.ready.get()
-            task.run()
+            try:
+                task.run()
+            except StopIteration:
+                self.exit(task)
+                continue
             self.schedule(task)
+
+
+if __name__ == '__main__':
+    def foo():
+        for i in range(10):
+            print("I'm foo")
+            yield
+
+    def bar():
+        for i in range(10):
+            print("I'm bar")
+            yield
+
+    sched = Scheduler()
+    sched.new(foo())
+    sched.new(bar())
+    sched.mainloop()
