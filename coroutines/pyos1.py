@@ -21,6 +21,12 @@ class SystemCall(object):
         pass
 
 
+class GetTid(SystemCall):
+    def handle(self):
+        self.task.sendval = self.task.tid
+        self.sched.schedule(self.task)
+
+
 class Scheduler(object):
     def __init__(self):
         self.ready = Queue()
@@ -57,13 +63,15 @@ class Scheduler(object):
 
 if __name__ == '__main__':
     def foo():
+        mytid = yield GetTid()
         for i in range(10):
-            print("I'm foo")
+            print("I'm foo", mytid)
             yield
 
     def bar():
+        mytid = yield GetTid()
         for i in range(10):
-            print("I'm bar")
+            print("I'm bar", mytid)
             yield
 
     sched = Scheduler()
