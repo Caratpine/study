@@ -3,7 +3,7 @@ from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE
 
 selector = DefaultSelector()
 stopped = False
-urls_todo = ['/', '/1', '/2', '/3', '/4', '/5', '/6', '/7', '/8', '/9']
+urls_todo = ['/', '/1', '/2']
 
 
 class Future(object):
@@ -71,7 +71,7 @@ class Task(object):
 
     def step(self, future):
         try:
-            next_future = self.coro .send(future.result)
+            next_future = self.coro.send(future.result)
         except StopIteration:
             return
         next_future.add_done_callback(self.step)
