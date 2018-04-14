@@ -4,7 +4,7 @@ import os
 import struct
 import socket
 from ctypes import Structure
-from ctypes import c_ubyte, c_ushort, c_ulong
+from ctypes import c_ubyte, c_ushort, c_uint32
 
 
 host = '0.0.0.0'
@@ -21,8 +21,8 @@ class IP(Structure):
         ('ttl', c_ubyte),
         ('protocol_num', c_ubyte),
         ('sum', c_ushort),
-        ('src', c_ulong),
-        ('dst', c_ulong)
+        ('src', c_uint32),
+        ('dst', c_uint32)
     ]
 
     def __new__(self, socket_buffer=None):
@@ -35,8 +35,8 @@ class IP(Structure):
             17: 'UDP'
         }
 
-        self.src_address = socket.inet_ntoa(struct.pack('<L', self.src))
-        self.dst_address = socket.inet_ntoa(struct.pack('<L', self.dst))
+        self.src_address = socket.inet_ntoa(struct.pack('@I', self.src))
+        self.dst_address = socket.inet_ntoa(struct.pack('@I', self.dst))
 
         try:
             self.protocol = self.protocol_map[self.protocol_num]
@@ -60,7 +60,7 @@ if os.name == 'nt':
 try:
     while True:
         raw_buffer = sniffer.recvfrom(65565)[0]
-        ip_header = IP(raw_buffer[0:20])
+        ip_header = IP(raw_buffer)
         print "Protocol: {} {} -> {}".format(ip_header.protocol, ip_header.src_address, ip_header.dst_address)
 except KeyboardInterrupt:
     if os.name == 'nt':
