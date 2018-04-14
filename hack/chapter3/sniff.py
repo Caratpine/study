@@ -4,7 +4,7 @@ import os
 import socket
 
 
-host = '192.168.0.196'
+host = '104.20.208.3'
 
 if os.name == 'nt':
     socket_protocol = socket.IPPROTO_IP
@@ -14,6 +14,8 @@ else:
 
 sniffer = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket_protocol)
 sniffer.bind((host, 0))
+
+#: 设置在捕获的数据奥中包含 IP 头
 sniffer.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
 
 if os.name == 'nt':
