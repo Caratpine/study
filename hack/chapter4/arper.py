@@ -23,7 +23,12 @@ print '[*] Setting up {}'.format(interface)
 
 
 def restore_target(gateway_ip, gateway_mac, target_ip, target_mac):
-    pass
+    print '[*] Restoring target...'
+    send(ARP(op=2, psrc=gateway_ip, pdst=target_ip,
+             hwdst='ff:ff:ff:ff:ff:ff', hwsrc=gateway_mac), count=5)
+    send(ARP(op=2, psrc=target_ip, pdst=gateway_ip,
+             hwdst='ff:ff:ff:ff:ff:ff', hwsrc=target_mac), count=5)
+    os.kill(os.getpid(), signal.SIGINT)
 
 
 def get_mac(ip_address):
