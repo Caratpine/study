@@ -5,7 +5,7 @@ import sys
 import threading
 import time
 import signal
-from scrapy.all import conf, sniff, wrpcap, ARP, send, srp, Ether
+from scapy.all import conf, sniff, wrpcap, ARP, send, srp, Ether
 
 
 interface = 'en0'
