@@ -4,6 +4,7 @@ from flask import Flask, url_for, redirect, render_template
 from flask_login import LoginManager, UserMixin, login_required, login_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from flask_bootstrap import Bootstrap
 from wtforms import StringField, PasswordField, SubmitField
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -12,6 +13,10 @@ app.secret_key = 'please-generate-a-random-secret_key'
 
 login_mangager = LoginManager(app)
 db = SQLAlchemy(app)
+bootstrap = Bootstrap(app)
+
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 
 class User(UserMixin, db.Model):
@@ -60,3 +65,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
     return render_template('login.html', form=form)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
