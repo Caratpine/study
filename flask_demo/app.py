@@ -5,6 +5,7 @@ from flask_login import LoginManager, UserMixin, login_required, login_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'please-generate-a-random-secret_key'
@@ -20,6 +21,17 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    @property
+    def password(self):
+        raise AttributeError('password is not readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
 
 
 class LoginForm(FlaskForm):
