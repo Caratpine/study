@@ -1,25 +1,25 @@
-#!/usr/bin/env python
 # coding=utf-8
 
-from flask import Flask, session, escape, request
+from flask import Flask
+from flask_login import LoginManager, UserMixin
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.secret_key = 'please-generate-a-random-secret_key'
 
-
-@app.route('/')
-def index():
-    if 'username' in session:
-        return 'hello, {}'.format(escape(session['username']))
-    return 'hello, stranger'
+login_mangager = LoginManager(app)
+db = SQLAlchemy(app)
 
 
-@app.route('/login', methods=['POST'])
-def login():
-    session['username'] = request.form['username']
-    session['password'] = 'forever8023scr'
-    return 'login success'
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(64), unique=True, index=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    password_hash = db.Column(db.String(128))
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@login_mangager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
