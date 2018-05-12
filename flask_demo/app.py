@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from flask import Flask, url_for, redirect, render_template
-from flask_login import LoginManager, UserMixin, login_required, login_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
@@ -47,7 +47,7 @@ class LoginForm(FlaskForm):
 
 @login_mangager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.query.get(user_id)
 
 
 @app.route('/')
@@ -61,10 +61,17 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if not user and user.verify_password(form.password.data):
+        if user and user.verify_password(form.password.data):
             login_user(user)
             return redirect(url_for('index'))
     return render_template('login.html', form=form)
+
+
+@app.route('logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
