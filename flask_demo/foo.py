@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import os
-import thread
+import threading
 
 
 class InputData(object):
@@ -52,7 +52,7 @@ def create_workers(input_list):
 
 
 def execute(workers):
-    threads = [thread.Thread(target=w.map) for w in workers]
+    threads = [threading.Thread(target=w.map) for w in workers]
     for t in threads:
         t.start()
     for t in threads:
