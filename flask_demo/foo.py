@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import os
+import thread
 
 
 class InputData(object):
@@ -48,3 +49,16 @@ def create_workers(input_list):
     for input_data in input_list:
         workers.append(LineCountWorker(input_data))
     return workers
+
+
+def execute(workers):
+    threads = [thread.Thread(target=w.map) for w in workers]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    first, rest = workers[0], workers[1:]
+    for worker in rest:
+        first.reduce(worker)
+    return first.result
