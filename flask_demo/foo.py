@@ -62,3 +62,9 @@ def execute(workers):
     for worker in rest:
         first.reduce(worker)
     return first.result
+
+
+def mapreduce(data_dir):
+    inputs = generate_inputs(data_dir)
+    workers = create_workers(inputs)
+    return execute(workers)
