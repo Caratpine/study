@@ -1,77 +1,48 @@
 # coding=utf-8
 
-from flask import Flask, url_for, redirect, render_template
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, jsonify
 from flask_wtf import FlaskForm
-from flask_bootstrap import Bootstrap
-from wtforms import StringField, PasswordField, SubmitField
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms.validators import ValidationError
+from werkzeug import secure_filename
+
 
 app = Flask(__name__)
-app.secret_key = 'please-generate-a-random-secret_key'
 
-login_mangager = LoginManager(app)
-db = SQLAlchemy(app)
-bootstrap = Bootstrap(app)
+app.config['WTF_CSRF_ENABLED'] = False
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+class UploadImageForm(FlaskForm):
+    image = FileField('图片', validators=[
+        FileRequired(message='请上传图片'),
+        FileAllowed(['gif', 'png', 'jpg', 'jpeg'],
+                    '上传失败，图片类型只能是 gif, png, jpg, jpeg')
+    ])
 
-
-class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(64), unique=True, index=True)
-    username = db.Column(db.String(64), unique=True, index=True)
-    password_hash = db.Column(db.String(128))
-
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    @property
-    def password(self):
-        raise AttributeError('password is not readable attribute')
-
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-
-class LoginForm(FlaskForm):
-    email = StringField('Email')
-    password = PasswordField('Password')
-    submit = SubmitField('Log In')
-
-
-@login_mangager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+    def validate_image(self, field):
+        filename = secure_filename(field.data.filename)
+        field.data.filename = filename
+        size = field.data.content_length
+        print(dir(field.data))
+        print(size)
+        if size > 2:
+            raise ValidationError('图片大小不能超过 5M')
 
 
 @app.route('/')
-@login_required
 def index():
-    return 'hello world'
+    return render_template('index.html')
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
+@app.route('/upload', methods=['POST'])
+def upload():
+    form = UploadImageForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and user.verify_password(form.password.data):
-            login_user(user)
-            return redirect(url_for('index'))
-    return render_template('login.html', form=form)
-
-
-@app.route('logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
+        print(form.image.data)
+        fd = request.files['image']
+        print(fd.content_length)
+        return 'hello world'
+    return jsonify(form.errors)
 
 
 if __name__ == '__main__':

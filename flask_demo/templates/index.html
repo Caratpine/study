@@ -1,5 +1,5 @@
-{% if current_user.is_authenticated %}
-    Hi, {{ current_user.username }}
-{% else %}
-    Hi, world
-{% endif %}
+
+<form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type='file' name='image' />
+    <input type="submit" />
+</form>
