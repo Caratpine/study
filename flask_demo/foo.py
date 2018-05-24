@@ -1,5 +1,7 @@
 # coding=utf-8
 
+import os
+
 
 class InputData(object):
     def read(self):
@@ -34,3 +36,15 @@ class LineCountWorker(Worker):
 
     def reduce(self, other):
         self.result += other.result
+
+
+def generate_inputs(data_dir):
+    for name in os.listdir(data_dir):
+        yield PathInputData(os.path.join(data_dir, name))
+
+
+def create_workers(input_list):
+    workers = []
+    for input_data in input_list:
+        workers.append(LineCountWorker(input_data))
+    return workers
