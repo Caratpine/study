@@ -1,12 +1,15 @@
 # coding=utf-8
 
-import socket
-from shadowsocks.encrypt import Encryptor
+import pytest
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('0.0.0.0', 8388))
 
-encryptor = Encryptor('123456', 'aes-256-cfb')
-data = encryptor.encrypt(b'hello world')
+@pytest.fixture
+def smtp():
+    import smtplib
+    return smtplib.SMTP('smtp.gmail.com', 587, timeout=5)
 
-sock.sendall(data)
+
+def test_ehlo(smtp):
+    response, msg = smtp.ehlo()
+    assert response == 250
+    assert 0
