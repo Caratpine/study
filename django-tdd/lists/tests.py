@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
-from django.template.loader import render_to_string
 from lists.views import home_page
 from lists.models import Item, List
 
@@ -21,10 +20,8 @@ class HomePageTest(TestCase):
         self.assertEqual(found.func, home_page)
 
     def test_home_page_returns_corrent_html(self):
-        request = HttpRequest()
-        response = home_page(request)
-        expected_html = render_to_string('home.html')
-        self.assertEqual(response.content.decode('utf-8'), expected_html)
+        response = self.client.get('/')
+        self.assertTemplateUsed(response, 'home.html')
 
     def test_home_page_only_saves_items_when_necessary(self):
         request = HttpRequest()
