@@ -102,6 +102,7 @@ class NewListTest(TestCase):
 
 
 print('hello world')
+print(1)
 
 
 class Test(object):
