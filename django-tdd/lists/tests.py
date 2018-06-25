@@ -106,3 +106,7 @@ print('hello world')
 
 class Test(object):
     pass
+
+
+class Fuck(object):
+    pass
