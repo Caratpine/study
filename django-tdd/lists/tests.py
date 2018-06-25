@@ -99,3 +99,14 @@ class NewListTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
                          '/lists/the-only-list-in-the-world/')
+
+
+print('hello world')
+
+
+class Test(object):
+    pass
+
+
+class Fuck(object):
+    pass
