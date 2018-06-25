@@ -103,3 +103,7 @@ class NewListTest(TestCase):
 
 class Test(object):
     pass
+
+
+class Fuck(object):
+    pass
