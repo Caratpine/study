@@ -101,6 +101,9 @@ class NewListTest(TestCase):
                          '/lists/the-only-list-in-the-world/')
 
 
+print('hello world')
+
+
 class Test(object):
     pass
 
