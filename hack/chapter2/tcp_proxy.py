@@ -36,7 +36,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
         remote_buffer = response_handler(remote_buffer)  #: 4
 
         if len(remote_buffer):
-            print "[<==] Sending {} bytes to localhost.".format(len(remote_buffer))
+            print "[<==] Sending {} bytes to localhost. First".format(len(remote_buffer))
             client_socket.send(remote_buffer)
 
     while True:

@@ -21,4 +21,4 @@ addresses = Table(
     Column('email_address', String, nullable=False)
 )
 
-metadata.create_all(engine)
+ins = users.insert()

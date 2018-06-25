@@ -4,7 +4,7 @@ import os
 import socket
 
 
-host = '0.0.0.0'
+host = '192.168.199.171'
 
 if os.name == 'nt':
     socket_protocol = socket.IPPROTO_IP
