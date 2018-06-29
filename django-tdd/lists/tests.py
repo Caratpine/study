@@ -75,10 +75,6 @@ class ListViewTest(TestCase):
         self.assertNotContains(response, 'other list item1')
         self.assertNotContains(response, 'other list item2')
 
-    def test_uses_list_template(self):
-        response = self.client.get('/lists/the-only-list-in-the-world/')
-        self.assertTemplateUsed(response, 'list.html')
-
 
 class NewListTest(TestCase):
     def test_saving_a_POST_request(self):
@@ -95,21 +91,8 @@ class NewListTest(TestCase):
             '/lists/new',
             data={'item_text': 'A new list item'}
         )
-        print(response['location'])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],
-                         '/lists/the-only-list-in-the-world/')
+        new_list = List.objects.first()
+        self.assertRedirects(response, '/lists/%d/' % (new_list.id,))
 
 
-print('hello world')
-print(1)
-print(2)
-print(3)
 
-
-class Test(object):
-    pass
-
-
-class Fuck(object):
-    pass
