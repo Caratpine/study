@@ -13,3 +13,8 @@ def test_noop(smtp):
     response, msg = smtp.noop()
     assert response == 250
     assert 0
+
+
+class Foo(object):
+    def method(self):
+        return 'hello world'
