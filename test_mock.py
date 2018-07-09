@@ -1,16 +1,31 @@
 # coding=utf-8
 
-from mock import MagicMock
+from mock import MagicMock, patch
+import test_client
+# from test_client import Foo
 
 
 class ProductionClass:
     def method(self):
         self.something(1, 2, 3)
-    
-    def something(self, a, b, c):
-        pass
+
+    def closer(self, something):
+        something.close()
+
 
 real = ProductionClass()
-real.something = MagicMock()
-real.method()
-real.something.assert_called_once_with(1, 2, 3)
+mock = MagicMock()
+real.closer(mock)
+mock.close.assert_called_with()
+
+
+def some_function():
+    instance = test_client.Foo()
+    return instance.method()
+
+
+with patch('test_client.Foo') as mock:
+    instance = mock.return_value
+    instance.method.return_value = 'fuck'
+    result = some_function()
+    assert result == 'fuck'
