@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from __future__ import print_function
+
 import time
 import json
 import socket
@@ -12,7 +14,7 @@ def rpc(sock, in_, params):
     sock.sendall(length_prefix)
     sock.sendall(request)
     length_prefix = sock.recv(4)
-    length, _ = struct.unpack('I', length_prefix)
+    length, = struct.unpack('I', length_prefix)
     body = sock.recv(length)
     response = json.loads(body)
     return response['out'], response['result']

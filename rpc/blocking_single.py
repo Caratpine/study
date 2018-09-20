@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from __future__ import print_function
+
 import json
 import struct
 import socket
@@ -13,7 +15,7 @@ def handle_conn(conn, addr, handlers):
             print(addr, 'bye')
             conn.close()
             break
-        length, _ = struct.unpack('I', length_prefix)
+        length, = struct.unpack('I', length_prefix)
         body = conn.recv(length)
         request = json.loads(body)
         in_ = request['in']
@@ -36,10 +38,8 @@ def send_result(conn, out, result):
     conn.sendall(response)
 
 
-def loop(sock, handlers):
-    while True:
-        conn, addr = sock.accept()
-        handle_conn(conn, addr, handlers)
+def ping(conn, params):
+    send_result(conn, "pong", params)
 
 
 if __name__ == '__main__':
