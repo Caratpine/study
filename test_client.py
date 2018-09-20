@@ -1,17 +1,15 @@
 # coding=utf-8
 
-
-def test_ehlo(smtp):
-    print(smtp)
-    response, msg = smtp.ehlo()
-    assert response == 250
-    assert 0
+import socket
+import pprint
 
 
-def test_noop(smtp):
-    print(smtp)
-    response, msg = smtp.noop()
-    assert response == 250
-    assert 0
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(1.0)
+sock.connect(('localhost', 9999))
+sock.send(b'set a 123\r\n')
+data = sock.recv(1024)
 
-print('hello world')
+
+pprint.pprint(data)
+sock.close()
