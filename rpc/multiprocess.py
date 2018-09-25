@@ -1,14 +1,10 @@
 # coding=utf-8
 
+import os
 import json
 import struct
 import socket
-import thread
-
-import json
-import struct
-import socket
-import thread
+import multiprocessing
 
 
 def handle_conn(conn, addr, handlers):
@@ -32,7 +28,16 @@ def handle_conn(conn, addr, handlers):
 def loop(sock, handlers):
     while True:
         conn, addr = sock.accept()
-        thread.start_new_thread(handle_conn, (conn, addr, handlers))  # 开启新线程进行处理，就这行代码不一样
+        pid = os.fork()
+        if pid < 0:
+            return
+        if pid > 0:
+            conn.close()
+            continue
+        if pid == 0:
+            sock.close()
+            handle_conn(conn, addr, handlers)
+            break
 
 
 def ping(conn, params):
