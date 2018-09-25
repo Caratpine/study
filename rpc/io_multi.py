@@ -12,7 +12,7 @@ g_select_time = 10
 
 
 class Server(object):
-    def __init__(self, host='localhost', port=8989, timeout=2.0, client_nums=10):
+    def __init__(self, host='localhost', port=8988, timeout=2.0, client_nums=10):
         self.host = host
         self.port = port
         self.timeout = timeout,
@@ -22,8 +22,7 @@ class Server(object):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.setblocking(False)
         self.server.settimeout(2.0)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 0)
         self.server.bind((self.host, port))
         self.server.listen(10)
 
@@ -41,7 +40,7 @@ class Server(object):
             for s in read_list:
                 if s is self.server:
                     sock, addr = s.accept()
-                    print('%s connect.' % addr)
+                    print('%s connect.' % str(addr))
                     sock.setblocking(0)
                     self.inputs.append(sock)
                     self.client_info[sock] = str(addr)
@@ -49,6 +48,7 @@ class Server(object):
                 else:
                     try:
                         data = s.recv(1024)
+                        data = data.decode('utf-8')
                     except Exception:
                         data = ''
                         logging.error('Client error')
@@ -82,7 +82,7 @@ class Server(object):
 
                 if s is not self.server:
                     try:
-                        s.sendall(next_msg)
+                        s.sendall(next_msg.encode('utf-8'))
                     except Exception as e:
                         err_msg = "Send Data to %s  Error! ErrMsg: %s" % (self.client_info[s], e)
                         logging.error(err_msg)
@@ -96,7 +96,7 @@ class Server(object):
                         del self.client_info[s]
 
             for s in error_list:
-                logging.error("Client:%s Close Error." % str(self.client_info[cli]))
+                logging.error("Client:%s Close Error." % str(self.client_info[s]))
                 if s in self.inputs:
                     self.inputs.remove(s)
                     s.close()

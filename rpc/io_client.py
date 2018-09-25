@@ -7,7 +7,7 @@ import threading
 
 
 class Client(object):
-    def __init__(self, host='localhost', port=33333, timeout=1, reconnect=2):
+    def __init__(self, host='localhost', port=8988, timeout=1, reconnect=2):
         self.__host = host
         self.__port = port
         self.__timeout = timeout
@@ -44,11 +44,12 @@ class Client(object):
             time.sleep(0.1)
             # data = raw_input()
             data = sys.stdin.readline().strip()
+            print(data)
             if "exit" == data.lower():
                 with self.__lock:
                     self.flag = 0
                 break
-            self.client.sendall(data)
+            self.client.sendall(data.encode('utf-8'))
         return
 
     def recv_msg(self):
