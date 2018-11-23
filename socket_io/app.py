@@ -17,10 +17,10 @@ def index():
     return render_template('index.html')
 
 
-@socket_io.on('message')
+@socket_io.on('message', namespace='/test')
 def handle_message(message):
     print('received message: '+ message)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, port=7777)
