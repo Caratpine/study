@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from flask import Flask, render_template
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
@@ -19,7 +19,11 @@ def index():
 
 @socket_io.on('message', namespace='/test')
 def handle_message(message):
-    print('received message: '+ message)
+    print(message)
+    emit('connect', {'data': 'hello world'})
+
+
+
 
 
 if __name__ == '__main__':
