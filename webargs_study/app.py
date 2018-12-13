@@ -2,8 +2,8 @@
 
 from flask import Flask, jsonify
 from flask_wtf.csrf import CSRFProtect
-from webargs import fields
-from webargs.flaskparser import use_kwargs
+from webargs import fields, ValidationError
+from webargs.flaskparser import use_kwargs, use_args
 
 
 user_args = {
@@ -21,10 +21,33 @@ csrf_protect.init_app(app)
 
 @app.route('/', methods=['POST'])
 @csrf_protect.exempt
-@use_kwargs(user_args)
-def index(username, password, display_per_page, languages):
-    print(username, password, display_per_page, languages)
+@use_args(user_args, locations=('json',))
+def index(args):
+    print(args)
     return jsonify(msg='hello world')
+
+
+def must_exist_in_db(val):
+    print('111')
+    return True
+
+
+def validate_db(val):
+    print('222')
+    raise ValidationError('error')
+
+
+argmap = {
+    'id': fields.Int(validate=[must_exist_in_db, validate_db])
+}
+
+
+@app.route('/test', methods=['POST'])
+@csrf_protect.exempt
+@use_args(argmap, locations=('json', ))
+def test(args):
+    print(args)
+    return jsonify(msg='hello test')
 
 
 if __name__ == '__main__':
