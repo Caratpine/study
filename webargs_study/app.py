@@ -1,9 +1,8 @@
 # coding=utf-8
 
-from flask import Flask, jsonify
-from flask_wtf.csrf import CSRFProtect
+from flask import Flask, jsonify, request
 from webargs import fields, ValidationError
-from webargs.flaskparser import use_kwargs, use_args
+from webargs.flaskparser import use_kwargs, use_args, parser
 
 
 user_args = {
@@ -14,13 +13,23 @@ user_args = {
 }
 
 
-csrf_protect = CSRFProtect()
+get_args = {
+    'a': fields.Str(missing='hello')
+}
+
+
 app = Flask(__name__)
-csrf_protect.init_app(app)
+
+
+@app.route('/hello/<id>')
+def hello_id(id):
+    if __name__ == '__main__':
+        payload = parser.parse(get_args, request)
+    print(id, payload)
+    return jsonify(id=id, payload=payload)
 
 
 @app.route('/', methods=['POST'])
-@csrf_protect.exempt
 @use_args(user_args, locations=('json',))
 def index(args):
     print(args)
@@ -43,7 +52,6 @@ argmap = {
 
 
 @app.route('/test', methods=['POST'])
-@csrf_protect.exempt
 @use_args(argmap, locations=('json', ))
 def test(args):
     print(args)
@@ -51,5 +59,5 @@ def test(args):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5555)
+    app.run(debug=True, port=5000)
 
