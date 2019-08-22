@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Vertex struct {
-	X int
+	X
 	Y int
 }
 
