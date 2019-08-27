@@ -14,14 +14,11 @@ class Solution:
 
         def helper(root: TreeNode):
             if root is None:
-                return
-            if root.left:
-                self.sum += 1
-                print(self.sum)
-            elif root.right:
-                self.sum += 1
+                return 0
+            l = helper(root.left)
+            r = helper(root.right)
+            self.sum = max(r + l, self.sum)
+            return max(l, r) + 1
 
-            helper(root.left)
-            helper(root.right)
         helper(root)
         return self.sum
