@@ -16,7 +16,7 @@ def client():
 
 if __name__ == '__main__':
     threads = []
-    for i in range(1):
+    for i in range(5):
         t = threading.Thread(target=client)
         threads.append(t)
         t.daemon = True
