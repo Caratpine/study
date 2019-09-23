@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 		}
 
 		// 遍历文件描述符
-		for (i = 0; i <fd_max + 1; i++) {
+		for (i = 0; i < fd_max + 1; i++) {
 			//有 I/O 事件的文件描述符
 			if (FD_ISSET(i, &copy_reads)) {
 				if (i == serv_sock) {	// connection request

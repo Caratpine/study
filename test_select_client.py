@@ -7,7 +7,7 @@ import threading
 
 def client():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('127.0.0.1', 8084))
+    sock.connect(('127.0.0.1', 9191))
     sock.send(f'hello world {datetime.now()}'.encode('utf-8'))
     data = sock.recv(1024)
     print(data.decode('utf-8'))
