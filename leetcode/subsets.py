@@ -8,9 +8,9 @@ class Solution:
         results = []
         n = len(nums)
 
-        def backtracking(i, tmp: List[int]):
+        def backtracking(j, tmp: List[int]):
             results.append(tmp)
-            for i in range(i, n):
+            for i in range(j, n):
                 backtracking(i + 1, tmp + [nums[i]])
         backtracking(0, [])
         return results
