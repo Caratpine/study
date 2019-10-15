@@ -5,22 +5,20 @@ import copy
 
 class Solution:
     def permute(self, nums):
-        def backtracking(nums, index, tmp, idx_tmp):
-            if len(nums) == len(tmp):
+        results = []
+
+        def backtracking(tmp):
+            if len(tmp) == len(nums):
                 if tmp not in results:
                     results.append(tmp[:])
+                return
             else:
-                for idx, n in enumerate(nums):
-                    if idx in idx_tmp:
+                for n in nums:
+                    if n in tmp:
                         continue
                     tmp.append(n)
-                    idx_tmp.append(idx)
-                    backtracking(nums, idx, tmp, idx_tmp)
+                    backtracking(tmp)
                     tmp.pop()
-                    idx_tmp.pop()
 
-        results = []
-        tmp = []
-        idx_tmp = []
-        backtracking(nums, 0, tmp, idx_tmp)
+        backtracking([])
         return results
