@@ -25,4 +25,4 @@ class MinStack:
     def getMin(self) -> int:
         if self.helper:
             return self.helper[-1]
-        
+
