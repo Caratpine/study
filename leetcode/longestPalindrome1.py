@@ -13,4 +13,4 @@ class Solution:
             if sum % 2 == 0 and v % 2 == 1:
                 sum += 1
         return sum
-    
+
